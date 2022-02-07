@@ -51,6 +51,8 @@ void checkTimeAndMaybeDownload(){
   if (currentMillis - previousMillis < CHECK_INTERVAL)
     return;
   previousMillis = currentMillis;
+  Serial.print("current Sketch version ");
+  Serial.println(VERSION);
   handleSketchDownload();
 }
 
@@ -157,7 +159,7 @@ void handleSketchDownload() {
 void setup() {
 
   Serial.begin(115200);
-  while (!Serial);
+  delay(1000); //no need to hang on serial
 
   Serial.print("Sketch version ");
   Serial.println(VERSION);
