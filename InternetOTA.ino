@@ -42,8 +42,8 @@ int status = WL_IDLE_STATUS;
 
 
 
-void checkTimeAndMaybeDownload(){
-// Time interval check
+void checkTimeAndMaybeDownload() {
+  // Time interval check
   const unsigned long CHECK_INTERVAL = 3600000;  // Time interval between update checks (ms) 1 hour
 
   static unsigned long previousMillis = 0;
@@ -56,13 +56,13 @@ void checkTimeAndMaybeDownload(){
   handleSketchDownload();
 }
 
-  
-void handleSketchDownload() {
- const char* SERVER = "raw.githubusercontent.com";  // Set your correct hostname
- const unsigned short SERVER_PORT = 443;     // Commonly 80 (HTTP) | 443 (HTTPS)
- const char* PATH = "/learnfromgirls/InternetOTA/main/update-v%d.bin";       // Set the URI to the .bin firmware
 
-  
+void handleSketchDownload() {
+  const char* SERVER = "raw.githubusercontent.com";  // Set your correct hostname
+  const unsigned short SERVER_PORT = 443;     // Commonly 80 (HTTP) | 443 (HTTPS)
+  const char* PATH = "/learnfromgirls/InternetOTA/main/update-v%d.bin";       // Set the URI to the .bin firmware
+
+
   Serial.print("making client for server=");
   Serial.println(SERVER);
   Serial.println("Initialize WiFi");
@@ -135,12 +135,19 @@ void handleSketchDownload() {
     Serial.println("There is not enough space to store the update. Can't continue with update.");
     return;
   }
+  int timeoutretries = 100; //allow up to 100 seconds of timeout retries.
   byte b;
   while (length > 0) {
-    if (!client.readBytes(&b, 1)) // reading a byte with timeout
-      break;
-    InternalStorage.write(b);
-    length--;
+    if (!client.readBytes(&b, 1)) { // reading a byte with timeout
+      if (timeoutretries-- < 0) {
+        break;
+      } else {
+        delay(1000);
+      }
+    } else {
+      InternalStorage.write(b);
+      length--;
+    }
   }
   InternalStorage.close();
   client.stop();
